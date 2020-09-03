@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>LIVE PRICE OF Cryptocurrencies FROM Binance.com API</h1>
+  <ul id="events">
+    <li></li>
+  </ul>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const $events = document.getElementById('events');
+
+    const newItem = (content) => {
+      const item = document.querySelector('li');
+      item.innerText = content;
+      return item;
+    };
+
+    const socket = io();
+
+    socket.on('connect', () => {
+      $events.appendChild(newItem('connect'));
+    });
+
+    socket.on('livePrice', (price) => {
+      $events.appendChild(newItem(`LIVE PRICE IN RIALS : ${price}`));
+    });
+    
+  </script>
+</body>
+</html>
