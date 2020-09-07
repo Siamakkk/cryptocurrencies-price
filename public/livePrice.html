@@ -7,30 +7,8 @@
 </head>
 <body>
   <h1>LIVE PRICE OF Cryptocurrencies FROM Binance.com API</h1>
-  <ul id="events">
-    <li></li>
-  </ul>
-
+  <div id="price"></div>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const $events = document.getElementById('events');
-
-    const newItem = (content) => {
-      const item = document.querySelector('li');
-      item.innerText = content;
-      return item;
-    };
-
-    const socket = io();
-
-    socket.on('connect', () => {
-      $events.appendChild(newItem('connect'));
-    });
-
-    socket.on('livePrice', (price) => {
-      $events.appendChild(newItem(`LIVE PRICE IN RIALS : ${price}`));
-    });
-    
-  </script>
+  <script src="./js/livePrice.js"></script>
 </body>
 </html>

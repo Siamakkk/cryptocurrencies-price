@@ -1,3 +1,4 @@
+const sockeIo = require('socket.io')
 const express = require('express')
 const app = express()
 
@@ -13,47 +14,32 @@ app.use(express.static(__dirname + '/public'))
 app.use('/api/v1/cryptoPrice', cryptoPriceRouter)
 
 const server = app.listen(PORT, localhost, () => {
-  console.log(`server is up on http://${localhost}:${PORT}`);
+  console.log(`server is up on http://${localhost}:${PORT}`)
 })
+
+
 
 
 //LIVE PRICE CODE
-const io = require('socket.io')(server)
+const io = sockeIo(server)
+
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  console.log('a user connected')
 })
+//list of cryptocurrencies to track
+const symboleName = ['BNBTUSD', 'XRPTUSD', 'ETHTUSD', 'BTCTUSD', 'LINKTUSD',
+ 'LTCTUSD', 'BCHUSDT', 'TRXUSDT', 'DASHUSDT', 'ADAUSDT', 'XLMUSDT',
+  'XMRUSDT', 'DOGEUSDT', 'XTZUSDT', 'ONTUSDT']
 
-io.on('connect', socket => {
-  setInterval(() => {
-    binance.futuresPrices()
-    .then((prices) => {
-      for(let key in prices) {
-        const dollarTORialExchangeRate = 220000
-        prices[key] = ( parseFloat(prices[key]) * dollarTORialExchangeRate ).toString()
+//fetching data from source and send it to client-side
+io.on('connect', (socket) => {  
+  binance.websockets.prevDay(false, (error, response) => {
+    if(error) return socket.emit('BNBTUSD', 'problem fetching data fron binance')
+    symboleName.map(el => {
+      if(response.symbol === el) {
+        const priceInRial = response.symbol + ':' + (parseFloat(response.averagePrice) * 220000)
+        socket.emit(el, priceInRial)
       }
-      socket.emit('livePrice', ` 
-      Binance : ${prices.BNBUSDT},
-      Ripple : ${prices.XRPUSDT},
-      Ethereum : ${prices.ETHUSDT},
-      Bitcoin: ${prices.BTCUSDT},
-      Chainlink : ${prices.LINKUSDT},
-      Litecoin : ${prices.LTCUSDT},
-      Bitcoincash : ${prices.BCHUSDT},
-      Tron : ${prices.TRXUSDT},
-      Dash : ${prices.DASHUSDT},
-      Cardano : ${prices.ADAUSDT},
-      Stellar : ${prices.XLMUSDT},
-      Monero : ${prices.XMRUSDT},
-      Ethereum : ${prices.ZECUSDT},
-      Dogecoin : ${prices.DOGEUSDT},
-      Tezos : ${prices.XTZUSDT},
-      Ontology : ${prices.ONTUSDT}`
-      );
     })
-    .catch((err) => {
-      socket.emit('livePrice', 'an error happend please try later')
-      console.log('ERROR : ', err)})
-    }, 1000);
-});
-
-
+  })
+})
